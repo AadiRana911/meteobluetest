@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meteoblue Map</title>
+
+    <script src="https://static.meteoblue.com/cdn/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://static.meteoblue.com/cdn/mapbox-gl-js/v1.11.1/mapbox-gl.css"
+      target="_blank"
+      rel="noreferrer"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://static.meteoblue.com/lib/maps-plugin/v0.x/maps-plugin.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Roboto", sans-serif;
+        overflow: hidden;
+      }
+
+      .controlButton-NthjG {
+        display: none;
+      }
+
+      #menuToggle {
+        position: absolute;
+        top: 13px;
+        right: 14px;
+        z-index: 1001;
+        font-size: 2em;
+        background: rgba(24, 56, 122, 0.8);
+        border: 1px solid rgba(24, 56, 122, 0.8);
+        border-radius: 3px;
+        width: 26px;
+        height: 48px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.3s;
+      }
+      #menuToggle.menu-toggle-open {
+        transform: translateX(-255px);
+      }
+      #menuToggle.menu-toggle-open img {
+        transform: rotate(180deg);
+      }
+      /* My Catches button styles */
+      .my-catches-btn {
+        background: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        color: #fff;
+        font-weight: 500;
+        font-size: 14px;
+        margin: 0;
+        border: none;
+        cursor: pointer;
+      }
+
+      .my-catches-btn > div {
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .my-catches-btn img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .my-catches-btn p {
+        margin: 0;
+      }
+
+      @media (min-width: 960px) {
+        #menuToggle.menu-toggle-closed {
+          top: 50px;
+        }
+      }
+
+      .custom-menu {
+        position: absolute;
+        top: 0;
+        right: -600px;
+        width: 270px;
+        max-width: 270px;
+        height: 100%;
+        border-radius: 0 0 0 16px;
+        background: rgba(24, 56, 122, 0.8);
+        /* transform: translateX(200%); */
+        transition: right 0.3s;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+      }
+      .custom-menu.open {
+        /* transform: translateX(0); */
+        right: 0;
+      }
+
+      .map-selection {
+        height: 100%;
+        pointer-events: initial;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        width: calc(100% - 24px);
+        padding: 12px;
+      }
+
+      .map-selection > div.active {
+        background: #fff;
+        border-radius: 100px;
+      }
+
+      .map-selection > div {
+        cursor: pointer;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #ffffff;
+      }
+
+      .map-selection > div.active {
+        color: #4a4459;
+      }
+
+      .map-selection span {
+        display: flex;
+      }
+
+      .map-selection div.active span {
+        color: #18387a !important;
+      }
+
+      .date-display {
+        display: flex;
+        align-items: center;
+        padding: 0 0.5em;
+      }
+
+      .thirdPartyContentArea-ZOZYS.mainArea-xI3AB {
+        width: 293px;
+        right: 0 !important;
+        top: 0 !important;
+        left: auto !important;
+        bottom: 50px !important;
+      }
+
+      .maps-PSzhi {
+        position: relative;
+      }
+
+      .toggle-container {
+        display: inline-block;
+        position: relative;
+      }
+
+      .toggle-wrapper {
+        background-color: #dadadb;
+        border-radius: 16px;
+        padding: 2px;
+        width: 50px;
+        height: 24px;
+        cursor: pointer;
+        position: relative;
+        transition: background-color 0.3s ease;
+        box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .toggle-ball {
+        width: 20px;
+        height: 20px;
+        background-color: #fff;
+        border-radius: 50%;
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        transition: transform 0.3s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      .toggle-text {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 11px;
+        font-weight: bold;
+        color: #939295;
+        transition: opacity 0.2s ease;
+        line-height: 1;
+      }
+
+      .toggle-off-text {
+        right: 5px;
+        opacity: 1;
+      }
+
+      .toggle-on-text {
+        left: 8px;
+        opacity: 0;
+      }
+
+      .toggle-wrapper.active {
+        background-color: #08c2de;
+      }
+
+      .toggle-wrapper.active .toggle-ball {
+        transform: translateX(26px);
+        background-color: #ffffff;
+      }
+
+      .toggle-wrapper.active .toggle-off-text {
+        opacity: 0;
+      }
+
+      .toggle-wrapper.active .toggle-on-text {
+        opacity: 1;
+        color: #fff !important;
+      }
+
+      .loading-indicator {
+        position: fixed;
+        top: 13px;
+        left: 20px;
+        z-index: 1001;
+        background: rgba(24, 56, 122, 0.8);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        display: none;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .loading-indicator.show {
+        display: flex;
+      }
+
+      .loading-spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Popup styles */
+      .mapboxgl-popup-content {
+        padding: 12px;
+        border-radius: 8px;
+        max-width: 200px;
+      }
+
+      .catch-popup {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .catch-popup h4 {
+        margin: 0;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .catch-popup p {
+        margin: 0;
+        color: #666;
+        font-size: 12px;
+      }
+
+      .catch-popup img {
+        max-width: 100%;
+        max-height: 80px;
+        object-fit: contain;
+      }
+
+      #map_container,
+      #map_container_noaa {
+        position: absolute;
+      }
+
+      #map_container {
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="menuToggle">
+      <img src="assets/arrow.svg" alt="arrow" />
+    </button>
+
+    <div id="map_container" style="height: 100vb; width: 100%"></div>
+    <div id="map_container_noaa" style="height: 100vb; width: 100%"></div>
+
+    <script src="index.js"></script>
+  </body>
+</html>
